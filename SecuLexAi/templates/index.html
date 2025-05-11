@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="app-wrapper">
+    <!-- Left sidebar - contextual info -->
+    <div class="app-sidebar d-none d-lg-block">
+        <div class="sidebar-header">
+            <h5><i class="fas fa-info-circle me-2"></i>About SecuLexAI</h5>
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h6><i class="fas fa-brain me-2"></i>Capabilities</h6>
+                <ul class="sidebar-list">
+                    <li><i class="fas fa-check me-2"></i>Professional document formatting</li>
+                    <li><i class="fas fa-check me-2"></i>Web research with source attribution</li>
+                    <li><i class="fas fa-check me-2"></i>Answers stored for offline access</li>
+                    <li><i class="fas fa-check me-2"></i>Optimized for low-resource hardware</li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h6><i class="fas fa-bolt me-2"></i>Performance</h6>
+                <div class="performance-metric">
+                    <span class="metric-label">Web Crawling:</span>
+                    <span class="metric-value">5-10 sources</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="metric-label">Response Time:</span>
+                    <span class="metric-value">1-5 seconds</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="metric-label">Memory Usage:</span>
+                    <span class="metric-value">< 1GB RAM</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-tips">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Pro Tips</h6>
+                    <p class="tip">Ask specific questions for better answers</p>
+                    <p class="tip">Try topics like "How to implement AES encryption"</p>
+                    <p class="tip">Ask follow-up questions for deeper insights</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main chat interface -->
+    <div class="app-main">
+        <div class="chat-card">
+            <div class="chat-header">
+                <div class="chat-header-title">
+                    <i class="fas fa-comments me-2"></i>
+                    <h5>Professional Documentation Assistant</h5>
+                </div>
+                <div class="chat-actions">
+                    <a href="/learning" class="btn btn-sm btn-outline-info me-2">
+                        <i class="fas fa-brain me-1"></i>Learning Stats
+                    </a>
+                    <button id="clear-history" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash-alt me-1"></i>Clear History
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-body">
+                <!-- Message area where chat history will appear -->
+                <div id="message-area" class="message-area">
+                    <!-- Display existing chat history from session -->
+                    {% if chat_history %}
+                        {% for message in chat_history %}
+                            <div class="message {% if message.role == 'user' %}user-message{% else %}assistant-message{% endif %}">
+                                {% if message.role == 'user' %}
+                                <div class="message-header">
+                                    <i class="fas fa-user me-2"></i><span>You</span>
+                                </div>
+                                {% else %}
+                                <div class="message-header">
+                                    <button class="copy-button" title="Copy to clipboard" onclick="copyMessageToClipboard(this)">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                    <span><i class="fas fa-robot me-2"></i>SecuLexAI</span>
+                                </div>
+                                {% endif %}
+                                <div class="message-content">
+                                    {{ message.content|safe }}
+                                </div>
+                                {% if message.role == 'assistant' and message.source %}
+                                    <div class="message-footer">
+                                        <span class="source-tag"><i class="fas fa-link me-1"></i>Source: {{ message.source }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Welcome message when no history exists -->
+                        <div class="message assistant-message structured-response">
+                            <div class="message-header">
+                                <button class="copy-button" title="Copy to clipboard" onclick="copyMessageToClipboard(this)">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                                <span><i class="fas fa-robot me-2"></i>SecuLexAI</span>
+                            </div>
+                            <div class="content-container">
+                                <div class="doc-section">
+                                    <h3>Welcome to SecuLexAI</h3>
+                                    <p>I'm your professional documentation and research assistant. I can help with detailed answers on virtually any topic by:</p>
+                                    <ul class="key-points">
+                                        <li>Finding information from my stored knowledge base</li>
+                                        <li>Searching authoritative web sources when needed</li>
+                                        <li>Providing structured, well-formatted documentation</li>
+                                        <li>Learning from our interactions for faster future responses</li>
+                                    </ul>
+                                    <p>Ask me anything to get started!</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Input area for new messages -->
+            <div class="chat-footer">
+                <div class="input-area">
+                    <form id="message-form">
+                        <div class="input-group">
+                            <textarea id="message-input" class="form-control" placeholder="Ask a question..." rows="2" required></textarea>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-help">
+                            <span><i class="fas fa-keyboard me-1"></i>Press Enter to send</span>
+                            <span><i class="fas fa-info-circle me-1"></i>For detailed answers, ask specific questions</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

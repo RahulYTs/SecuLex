@@ -1,0 +1,254 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="app-wrapper">
+    <!-- Left sidebar - contextual info -->
+    <div class="app-sidebar d-none d-lg-block">
+        <div class="sidebar-header">
+            <h5><i class="fas fa-brain me-2"></i>Learning System</h5>
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h6><i class="fas fa-database me-2"></i>How It Works</h6>
+                <ul class="sidebar-list">
+                    <li><i class="fas fa-check me-2"></i>Stores Q&A pairs automatically</li>
+                    <li><i class="fas fa-check me-2"></i>Improves response time</li>
+                    <li><i class="fas fa-check me-2"></i>Caches web information offline</li>
+                    <li><i class="fas fa-check me-2"></i>Categorizes by query type</li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h6><i class="fas fa-bolt me-2"></i>Benefits</h6>
+                <div class="performance-metric">
+                    <span class="metric-label">Faster Responses:</span>
+                    <span class="metric-value">Cached Results</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="metric-label">Less Internet:</span>
+                    <span class="metric-value">Reduced Traffic</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="metric-label">Personalized:</span>
+                    <span class="metric-value">Your Questions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="app-main">
+        <div class="stats-card">
+            <div class="stats-header">
+                <div class="stats-header-title">
+                    <i class="fas fa-chart-line me-2"></i>
+                    <h5>Learning Statistics</h5>
+                </div>
+                <div class="stats-actions">
+                    <a href="/" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-comments me-1"></i>Back to Chat
+                    </a>
+                </div>
+            </div>
+            
+            <div class="stats-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-card-header">Total Q&A Pairs</div>
+                            <div class="stat-card-value" id="total-qa-pairs">Loading...</div>
+                            <div class="stat-card-desc">Unique questions stored in the database</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-card-header">Query Categories</div>
+                            <div class="stat-card-value" id="query-categories">Loading...</div>
+                            <div class="stat-card-desc">Different types of questions identified</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-card-header">Most Common Query</div>
+                            <div class="stat-card-value" id="most-common-query">Loading...</div>
+                            <div class="stat-card-desc">Most frequently asked question</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h6 class="chart-title">Query Types Distribution</h6>
+                            <div class="chart-container">
+                                <table class="table table-sm table-dark" id="query-types-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Query Type</th>
+                                            <th>Count</th>
+                                            <th width="50%">Distribution</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="3" class="text-center">Loading data...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h6 class="chart-title">Most Used Queries</h6>
+                            <div class="chart-container">
+                                <table class="table table-sm table-dark" id="queries-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Query</th>
+                                            <th>Times Used</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="2" class="text-center">Loading data...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="info-card">
+                            <h6 class="info-title"><i class="fas fa-info-circle me-2"></i>How SecuLexAI Learning Works</h6>
+                            <div class="info-content">
+                                <p>SecuLexAI improves over time by learning from your interactions:</p>
+                                <ol>
+                                    <li><strong>Storing Q&A Pairs:</strong> When you ask a new question, both the question and answer are saved in the database.</li>
+                                    <li><strong>Smart Matching:</strong> For similar questions, the system recognizes patterns to avoid redundant web searches.</li>
+                                    <li><strong>Offline Access:</strong> Previously crawled information remains available even without internet access.</li>
+                                    <li><strong>Improved Relevance:</strong> The more you use SecuLexAI, the better it understands your information needs.</li>
+                                </ol>
+                                <p>This process happens automatically without requiring any manual training or intervention.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch statistics data from the server
+        fetch('/stats')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load statistics');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update the stats display
+                updateStatsDisplay(data);
+            })
+            .catch(error => {
+                console.error('Error loading statistics:', error);
+                document.querySelectorAll('.stat-card-value, tbody').forEach(el => {
+                    el.textContent = 'Error loading data';
+                });
+            });
+        
+        function updateStatsDisplay(data) {
+            // Update total QA pairs
+            document.getElementById('total-qa-pairs').textContent = data.total_qa_pairs || 0;
+            
+            // Update categories count
+            const categories = data.query_types || [];
+            document.getElementById('query-categories').textContent = categories.length || 0;
+            
+            // Update most common query
+            const mostUsed = data.most_used_queries || [];
+            if (mostUsed.length > 0) {
+                const mostCommon = mostUsed[0];
+                document.getElementById('most-common-query').textContent = 
+                    mostCommon.query ? (mostCommon.query.length > 20 ? 
+                        mostCommon.query.substring(0, 20) + '...' : 
+                        mostCommon.query) : 'None';
+            } else {
+                document.getElementById('most-common-query').textContent = 'None';
+            }
+            
+            // Update query types table
+            const queryTypesTable = document.getElementById('query-types-table').querySelector('tbody');
+            queryTypesTable.innerHTML = '';
+            
+            if (categories.length > 0) {
+                // Calculate total for percentage
+                const totalQueries = categories.reduce((sum, item) => sum + item.count, 0);
+                
+                // Sort by count descending
+                categories.sort((a, b) => b.count - a.count);
+                
+                categories.forEach(item => {
+                    const row = document.createElement('tr');
+                    const percentage = (item.count / totalQueries * 100).toFixed(1);
+                    
+                    row.innerHTML = `
+                        <td>${formatQueryType(item.type)}</td>
+                        <td>${item.count}</td>
+                        <td>
+                            <div class="progress" style="height: 15px;">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     style="width: ${percentage}%;" 
+                                     aria-valuenow="${percentage}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">${percentage}%</div>
+                            </div>
+                        </td>
+                    `;
+                    queryTypesTable.appendChild(row);
+                });
+            } else {
+                queryTypesTable.innerHTML = '<tr><td colspan="3" class="text-center">No data available</td></tr>';
+            }
+            
+            // Update queries table
+            const queriesTable = document.getElementById('queries-table').querySelector('tbody');
+            queriesTable.innerHTML = '';
+            
+            if (mostUsed.length > 0) {
+                mostUsed.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    // Truncate long queries
+                    const displayQuery = item.query.length > 40 ? 
+                        item.query.substring(0, 40) + '...' : 
+                        item.query;
+                    
+                    row.innerHTML = `
+                        <td>${displayQuery}</td>
+                        <td>${item.count}</td>
+                    `;
+                    queriesTable.appendChild(row);
+                });
+            } else {
+                queriesTable.innerHTML = '<tr><td colspan="2" class="text-center">No data available</td></tr>';
+            }
+        }
+        
+        function formatQueryType(type) {
+            // Convert camelCase or snake_case to Title Case
+            return type
+                .replace(/([A-Z])/g, ' $1') // Insert space before capital letters
+                .replace(/_/g, ' ') // Replace underscores with spaces
+                .replace(/^\w/, c => c.toUpperCase()); // Capitalize first letter
+        }
+    });
+</script>
+{% endblock %}
